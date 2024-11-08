@@ -9,16 +9,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleDarkMode } from './slices/themeSlice';
 import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
+import { logout } from './slices/authSlice';
 
 function App() {
   const dispatch = useDispatch();
   const darkMode = useSelector((state) => state.theme.darkMode);
 
   function Logout() {
-    localStorage.clear()
-    
-    return <Navigate to="/login" />
-    
+    const dispatch = useDispatch();
+  
+    useEffect(() => {
+      localStorage.clear();
+      dispatch(logout());
+    }, [dispatch]);
+  
+    return <Navigate to="/login" />;
   }
   
   function RegisterAndLogout() {

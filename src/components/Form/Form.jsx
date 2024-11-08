@@ -3,8 +3,11 @@ import api from '../../api'
 import { useNavigate, Link } from 'react-router-dom';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 import { useSelector } from 'react-redux';
+import { setIsAuthorized } from '../../slices/authSlice';
+import { useDispatch } from 'react-redux';
 
 const Form = ({ route, method }) => {
+  const dispatch = useDispatch()
   const darkMode = useSelector((state) => state.theme.darkMode)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -29,6 +32,7 @@ const Form = ({ route, method }) => {
             localStorage.getItem(ACCESS_TOKEN) &&
             localStorage.getItem(REFRESH_TOKEN)
           ) {
+            dispatch(setIsAuthorized())
             navigate("/notes");
           } else {
             setError("Failed to store tokens in localStorage");

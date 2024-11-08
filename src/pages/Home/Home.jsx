@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 // import { toggleDarkMode } from '../../slices/themeSlice';
@@ -7,16 +7,24 @@ import Navbar from '../../components/Navbar/Navbar';
 
 const Home = () => {
   const dispatch = useDispatch()  
-  //     const isLoggedIn = useSelector((state) => state.auth.isLoggedIn) // Get the login status from the store
-  const isAuthorized = useSelector((state) => state.auth.isAuthorized)
+  const isAuthorizedFromRedux = useSelector((state) => state.auth.isAuthorized); // Get from Redux store
+  const [isAuthorized, setIsAuthorized] = useState(isAuthorizedFromRedux); // Local state for isAuthorized
+  // const isAuthorized = useSelector((state) => state.auth.isAuthorized)
+  console.log("isAuthorized", isAuthorized);
+  
   const darkMode = useSelector((state) => state.theme.darkMode)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setIsAuthorized(isAuthorizedFromRedux); // Update the local state every render
+  }, [isAuthorizedFromRedux]); // Dependency array ensures it updates whenever the Redux value changes
+
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-green-50 to-green-100'}`}>
       {/* Navbar */}
       {
-        isAuthorized ? <Navbar buttonType={"Login"}/> : <Navbar buttonType={"Logout"}/>
+        isAuthorized ? <Navbar buttonType={"Logout"}/> : <Navbar buttonType={"Login"}/>
       }
       {/* <Navbar buttonType={"Login"}/> */}
 
