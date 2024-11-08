@@ -5,7 +5,6 @@ import { Sun, Moon, Menu } from 'lucide-react';
 import { Link, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 
-
 export default function Navbar({buttonType}) {
     const darkMode = useSelector((state) => state.theme.darkMode)
     const dispatch = useDispatch()
@@ -36,8 +35,14 @@ export default function Navbar({buttonType}) {
               }
             </div>
 
-            {/* Mobile Menu Button */}
-            <div className="md:hidden flex items-center">
+            {/* Mobile Menu and Dark Mode Button */}
+            <div className="md:hidden flex items-center space-x-4">
+              <button 
+                onClick={() => dispatch(toggleDarkMode(!darkMode))}
+                className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700 text-yellow-400' : 'bg-gray-100 text-gray-600'}`}
+              >
+                {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className={`p-2 rounded-lg ${darkMode ? 'text-white' : 'text-gray-600'}`}
@@ -51,19 +56,13 @@ export default function Navbar({buttonType}) {
           {mobileMenuOpen && (
             <div className="md:hidden pb-4">
               <div className="flex flex-col space-y-2">
-                <button 
-                  onClick={() => dispatch(toggleDarkMode(!darkMode))}
-                  className={`p-2 rounded-lg ${darkMode ? 'bg-gray-700 text-yellow-400' : 'bg-gray-100 text-gray-600'}`}
-                >
-                  {darkMode ? 'Light Mode' : 'Dark Mode'}
-                </button>
                 {
                 buttonType ? 
                 <Link to={`/${buttonType}`} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 {buttonType}
                 </Link> : 
                 ""
-              }
+                }
               </div>
             </div>
           )}

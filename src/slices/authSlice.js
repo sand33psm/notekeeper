@@ -8,8 +8,8 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setIsAuthorized(state, action) {
-            state.isAuthorized = action.payload
+        setIsAuthorized(state) {
+            state.isAuthorized = true
         },
         logout(state){
             state.isAuthorized = false

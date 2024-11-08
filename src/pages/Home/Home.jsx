@@ -7,13 +7,18 @@ import Navbar from '../../components/Navbar/Navbar';
 
 const Home = () => {
   const dispatch = useDispatch()  
+  //     const isLoggedIn = useSelector((state) => state.auth.isLoggedIn) // Get the login status from the store
+  const isAuthorized = useSelector((state) => state.auth.isAuthorized)
   const darkMode = useSelector((state) => state.theme.darkMode)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-green-50 to-green-100'}`}>
       {/* Navbar */}
-      <Navbar buttonType={"Login"}/>
+      {
+        isAuthorized ? <Navbar buttonType={"Login"}/> : <Navbar buttonType={"Logout"}/>
+      }
+      {/* <Navbar buttonType={"Login"}/> */}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">

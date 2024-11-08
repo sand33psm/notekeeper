@@ -4,24 +4,24 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 import { useSelector } from 'react-redux';
 
-const Form = ({route, method}) => {
+const Form = ({ route, method }) => {
   const darkMode = useSelector((state) => state.theme.darkMode)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!username && !password){
-      alert("Username or password is blank")
+      setError("Username or password is blank");
       return
     }
 
     try {
       const res = await api.post(route, { username, password })
       if (method === "login") {
-          
         localStorage.setItem(ACCESS_TOKEN, res.data.access);
         localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
         setTimeout(() => {
@@ -31,17 +31,32 @@ const Form = ({route, method}) => {
           ) {
             navigate("/notes");
           } else {
-            console.error("Failed to store tokens in localStorage");
-            alert("An error occurred, please try logging in again.");
+            setError("Failed to store tokens in localStorage");
           }
         }, 100); // Delay in milliseconds
-          
       } else {
         navigate("/login")
-
       }
     } catch (error) {
-      console.log(error);
+      if (error.response.data.detail === "No active account found with the given credentials") {
+        setError(
+          <p className="text-base">
+              No active account found with the given credentials. If you don't have an account,
+              please{' '}
+              <Link
+                to="/register"
+                className={`font-medium text-lg ${
+                  darkMode ? 'text-red-300 hover:text-red-200' : 'text-white hover:text-gray-200'
+                }`}
+              >
+                Create One
+              </Link>
+              .
+            </p>
+        );
+      } else {
+        setError(error.response.data.detail || "An error occurred, please try again.");
+      }
     }
   };
 
@@ -49,9 +64,14 @@ const Form = ({route, method}) => {
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} flex items-center justify-center px-4 sm:px-6 lg:px-8`}>
       <div className={`shadow-lg rounded-lg w-full max-w-md mx-auto p-8 sm:p-12 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>           
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold">{method === "login" ? "Welcome back !" : "Welcome! Create account"}</h1>
-
+          <h1 className="text-xl sm:text-2xl font-bold">{method === "login" ? "Welcome back!" : "Create an account"}</h1>
         </div>
+
+        {error && (
+          <div className={`bg-red-500 text-white rounded-md px-4 py-2 mb-4 ${darkMode ? 'bg-red-700' : 'bg-red-500'}`}>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
