@@ -26,7 +26,6 @@ const Home = () => {
       {
         isAuthorized ? <Navbar buttonType={"Logout"}/> : <Navbar buttonType={"Login"}/>
       }
-      {/* <Navbar buttonType={"Login"}/> */}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-12">
