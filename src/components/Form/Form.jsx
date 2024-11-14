@@ -46,7 +46,15 @@ const Form = ({ route, method }) => {
     } catch (error) {
       // If the error is a 401 Unauthorized error (wrong login details)
       if (error.response && error.response.status === 401) {
-        setError("No account found with these credentials.");
+        // setError("No account found with these credentials.");
+        setError(
+          <div>
+              No account found with these credentials. If you don't have an account,{' '}
+              <Link to="/register" className="text-blue-900 text-xl hover:text-blue-950 font-medium">
+                Create One
+              </Link>
+            </div>
+          )
       } else if (error.response && error.response.data) {
         const { username, password, non_field_errors } = error.response.data;
         let errorMessage = "";
