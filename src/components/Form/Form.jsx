@@ -13,15 +13,18 @@ const Form = ({ route, method }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // Track loading state
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     if (!username || !password || (method === 'register' && password !== confirmPassword)) {
       setError("Please fill all fields correctly.");
       return;
     }
+
+    setLoading(true); // Start the loader before making the API call
 
     try {
       const res = await api.post(route, { username, password, confirm_password: confirmPassword });
@@ -46,15 +49,14 @@ const Form = ({ route, method }) => {
     } catch (error) {
       // If the error is a 401 Unauthorized error (wrong login details)
       if (error.response && error.response.status === 401) {
-        // setError("No account found with these credentials.");
         setError(
           <div>
-              No account found with these credentials. If you don't have an account,{' '}
-              <Link to="/register" className="text-blue-900 text-xl hover:text-blue-950 font-medium">
-                Create One
-              </Link>
-            </div>
-          )
+            No account found with these credentials. If you don't have an account,{' '}
+            <Link to="/register" className="text-blue-900 text-xl hover:text-blue-950 font-medium">
+              Create One
+            </Link>
+          </div>
+        );
       } else if (error.response && error.response.data) {
         const { username, password, non_field_errors } = error.response.data;
         let errorMessage = "";
@@ -74,6 +76,8 @@ const Form = ({ route, method }) => {
       } else {
         setError("An error occurred, please try again.");
       }
+    } finally {
+      setLoading(false); // Stop the loader after the response is received
     }
   };
 
@@ -87,6 +91,15 @@ const Form = ({ route, method }) => {
         {error && (
           <div className={`bg-red-500 text-white rounded-md px-4 py-2 mb-4 ${darkMode ? 'bg-red-700' : 'bg-red-500'}`}>
             {error}
+          </div>
+        )}
+
+        {/* Loader (conditionally rendered based on the loading state) */}
+        {loading && (
+          <div className="flex justify-center items-center mb-4">
+            <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent rounded-full" role="status">
+              <span className="sr-only">Loading...</span>
+            </div>
           </div>
         )}
 
@@ -133,6 +146,7 @@ const Form = ({ route, method }) => {
                 ? 'bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500'
                 : 'bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500'
             }`}
+            disabled={loading} // Disable the button while loading
           >
             {method === 'login' ? "Log In" : "Register"}
           </button>
