@@ -44,8 +44,10 @@ const Form = ({ route, method }) => {
         navigate("/login");
       }
     } catch (error) {
-      // If there are validation errors
-      if (error.response && error.response.data) {
+      // If the error is a 401 Unauthorized error (wrong login details)
+      if (error.response && error.response.status === 401) {
+        setError("No account found with these credentials.");
+      } else if (error.response && error.response.data) {
         const { username, password, non_field_errors } = error.response.data;
         let errorMessage = "";
 
