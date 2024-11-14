@@ -99,7 +99,6 @@ function NoteCreationForm({noteAdded, setNoteAdded}) {
                                     type="button"
                                     onClick={() => {
                                         setIsExpanded(false);
-                                        setFormData({ title: '', content: '' });
                                     }}
                                     className={`px-4 py-2 rounded transition-colors duration-200 ${
                                         darkMode
