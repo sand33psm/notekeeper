@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import api from '../../api'
+import api from '../../api';
 import { useNavigate, Link } from 'react-router-dom';
 import { ACCESS_TOKEN, REFRESH_TOKEN } from '../../constants';
 import { useSelector } from 'react-redux';
@@ -7,23 +7,25 @@ import { setIsAuthorized } from '../../slices/authSlice';
 import { useDispatch } from 'react-redux';
 
 const Form = ({ route, method }) => {
-  const dispatch = useDispatch()
-  const darkMode = useSelector((state) => state.theme.darkMode)
+  const dispatch = useDispatch();
+  const darkMode = useSelector((state) => state.theme.darkMode);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!username && !password){
-      setError("Username or password is blank");
-      return
+    if (!username || !password || (method === 'register' && password !== confirmPassword)) {
+      setError("Please fill all fields correctly.");
+      return;
     }
 
     try {
-      const res = await api.post(route, { username, password })
+      const res = await api.post(route, { username, password, confirm_password: confirmPassword });
+
       if (method === "login") {
         localStorage.setItem(ACCESS_TOKEN, res.data.access);
         localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
@@ -32,41 +34,42 @@ const Form = ({ route, method }) => {
             localStorage.getItem(ACCESS_TOKEN) &&
             localStorage.getItem(REFRESH_TOKEN)
           ) {
-            dispatch(setIsAuthorized())
+            dispatch(setIsAuthorized());
             navigate("/notes");
           } else {
             setError("Failed to store tokens in localStorage");
           }
         }, 100); // Delay in milliseconds
       } else {
-        navigate("/login")
+        navigate("/login");
       }
     } catch (error) {
-      if (error.response.data.detail === "No active account found with the given credentials") {
-        setError(
-          <p className="text-base">
-              No active account found with the given credentials. If you don't have an account,
-              please{' '}
-              <Link
-                to="/register"
-                className={`font-medium text-lg ${
-                  darkMode ? 'text-red-300 hover:text-red-200' : 'text-white hover:text-gray-200'
-                }`}
-              >
-                Create One
-              </Link>
-              .
-            </p>
-        );
+      // If there are validation errors
+      if (error.response && error.response.data) {
+        const { username, password, non_field_errors } = error.response.data;
+        let errorMessage = "";
+
+        // Check for specific field errors
+        if (username) {
+          errorMessage += username[0] + " "; // Username error message
+        }
+        if (password) {
+          errorMessage += password[0] + " "; // Password error message
+        }
+        if (non_field_errors) {
+          errorMessage += non_field_errors[0] + " "; // General error
+        }
+
+        setError(errorMessage);
       } else {
-        setError(error.response.data.detail || "An error occurred, please try again.");
+        setError("An error occurred, please try again.");
       }
     }
   };
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} flex items-center justify-center px-4 sm:px-6 lg:px-8`}>
-      <div className={`shadow-lg rounded-lg w-full max-w-md mx-auto p-8 sm:p-12 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>           
+      <div className={`shadow-lg rounded-lg w-full max-w-md mx-auto p-8 sm:p-12 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl sm:text-2xl font-bold">{method === "login" ? "Welcome back!" : "Create an account"}</h1>
         </div>
@@ -100,6 +103,19 @@ const Form = ({ route, method }) => {
                 : 'bg-gray-200 text-gray-900 placeholder-gray-500'
             }`}
           />
+          {method === 'register' && (
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className={`rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                darkMode
+                  ? 'bg-gray-700 text-white placeholder-gray-400'
+                  : 'bg-gray-200 text-gray-900 placeholder-gray-500'
+              }`}
+            />
+          )}
           <button
             type="submit"
             className={`rounded-md px-4 py-2 w-full ${
@@ -108,7 +124,7 @@ const Form = ({ route, method }) => {
                 : 'bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500'
             }`}
           >
-            {method === 'login'? "Log In" : "Register"}
+            {method === 'login' ? "Log In" : "Register"}
           </button>
         </form>
 
