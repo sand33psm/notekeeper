@@ -43,12 +43,13 @@ export default function Navbar({buttonType}) {
               >
                 {darkMode ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`p-2 rounded-lg ${darkMode ? 'text-white' : 'text-gray-600'}`}
-              >
-                <Menu size={24} />
-              </button>
+              {
+                buttonType ? 
+                <Link to={`/${buttonType}`} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                {buttonType}
+                </Link> : 
+                ""
+              }
             </div>
           </div>
 
